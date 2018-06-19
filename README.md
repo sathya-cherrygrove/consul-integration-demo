@@ -89,3 +89,25 @@ Inject the DiscoveryClient bean into our restcontroller class to make query to c
     }
 
 *discoveryClient.getInstances("consul-integration-demo")* will return list of URL with port number. For example: http://10.40.100.44:8080
+
+Let's define our application endpoints
+*endpoints*
+
+    @RequestMapping("/discoveryClient")
+    public String discoveryPing() throws RestClientException, 
+      ServiceUnavailableException {
+    		RestTemplate restTemplate = new RestTemplate();
+    		System.out.println(serviceUrl());
+        URI service = serviceUrl()
+          .map(s -> s.resolve("/ping"))
+          .orElseThrow(ServiceUnavailableException::new);
+        return restTemplate.getForEntity(service, String.class)
+          .getBody();
+    }
+     
+    @RequestMapping("/ping")
+    public String ping() {
+        return "pong";
+    }
+
+Now open browser with localhost:8080/discoveryClient URL. */discoveryClient* endpoint will query the consul with "consul-integration-demo" application name. The Consul will returns list of URL's of that application. We are adding "/ping" to consul returned URL and making REST GET call and returning the result. Indirectly we are calling "/ping" endpoint through "/discoveryClient" endpoint.
