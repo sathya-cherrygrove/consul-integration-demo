@@ -53,3 +53,39 @@ By default, Spring Boot will try to connect to the Consul agent at localhost:850
 Consul rejection error resolved once application name added to the **application.yml** file. Run the application and check the consul ui(http://localhost:8500/). We can see the **consul-integration-demo** in services tab in consul.
 
 It means our service discovery part is okay.
+
+#### Finding services using Consul
+We already have our application registered in Consul, but how can clients find the service endpoints? We need a discovery client service to get a running and available service from Consul. Spring provides a *DiscoveryClient* API for this, which we can enable with the **@EnableDiscoveryClient** annotation:
+
+*update application class with **@EnableDiscoveryClient***
+
+    @SpringBootApplication
+    @EnableDiscoveryClient
+    @ComponentScan(basePackages= {"com.gramcha.*"})
+    public class ConsulIntegrationDemoApplication {
+    	public static void main(String[] args) {
+    		SpringApplication.run(ConsulIntegrationDemoApplication.class, args);
+    	}
+    }
+
+We are going to discover our service through consul in our service itself. This is to simulate finding URL of some service using consul. Let's create RestController class with two URL mappings "/discoveryClient","/ping".
+
+In *"/discoveryClient"* mapping we are going to query the consul with application name **"consul-integration-demo"** and adding *"/ping"* to the URL returned by consul and make REST GET call.
+
+Inject the DiscoveryClient bean into our restcontroller class to make query to consul.
+*restcontroller and discoveryclient bean*
+
+    @RestController
+    public class DiscoveryClientController {
+    	@Autowired
+        private DiscoveryClient discoveryClient;
+     
+        public Optional<URI> serviceUrl() {
+            return discoveryClient.getInstances("consul-integration-demo")
+              .stream()
+              .map(si -> si.getUri())
+              .findFirst();
+        }
+    }
+
+*discoveryClient.getInstances("consul-integration-demo")* will return list of URL with port number. For example: http://10.40.100.44:8080
