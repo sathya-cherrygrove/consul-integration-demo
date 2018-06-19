@@ -111,3 +111,27 @@ Let's define our application endpoints
     }
 
 Now open browser with localhost:8080/discoveryClient URL. */discoveryClient* endpoint will query the consul with "consul-integration-demo" application name. The Consul will returns list of URL's of that application. We are adding "/ping" to consul returned URL and making REST GET call and returning the result. Indirectly we are calling "/ping" endpoint through "/discoveryClient" endpoint.
+
+#### Adding health check
+Consul checks the health of the service endpoints periodically.
+
+By default, Spring implements the health endpoint to return 200 OK if the app is up. If we want to customize the endpoint we have to update the **application.yml**
+*application.yml*
+
+    spring:
+      cloud:
+        consul:
+          discovery:
+            healthCheckPath: /app-health-check
+            healthCheckInterval: 20s
+
+As a result, Consul will poll the “/app-health-check” endpoint every 20 seconds.
+Let’s define our custom health check service endpoint
+*Health check service endpoint*
+
+    @GetMapping("/app-health-check")
+    public String myCustomCheck() {
+        return "I am okay.";
+    }
+
+If we go to the Consul agent site, we’ll see that our application is passing with *"I am okay."* health check message.
