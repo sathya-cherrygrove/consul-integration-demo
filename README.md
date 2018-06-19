@@ -135,3 +135,64 @@ Let’s define our custom health check service endpoint
     }
 
 If we go to the Consul agent site, we’ll see that our application is passing with *"I am okay."* health check message.
+
+#### Distributed Configuration
+This consul feature allows synchronizing the configuration among all the services. Consul will watch for any configuration changes and then trigger the update of all the services.
+First, we need to add the spring-cloud-starter-consul-config dependency to our **pom.xml**.
+*pom.xml*
+
+    <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-consul-config</artifactId>
+			<version>2.0.0.RELEASE</version>
+	</dependency>
+
+We also need to move the settings of Consul and Spring application name from the **application.yml** file to the **bootstrap.yml** file which Spring loads first.
+
+Then, we need to **enable** Spring Cloud Consul **Config**:
+*bootstrap.yml*
+
+    spring:
+      application:
+        name: consul-integration-demo
+      cloud:
+        consul:
+          host: localhost
+          port: 8500
+          discovery:
+            healthCheckPath: /app-health-check
+            healthCheckInterval: 20s
+          config:
+            enabled: true
+
+Spring Cloud Consul Config will look for the properties in Consul at “/config/consul-integration-demo”. So if we have a property called “env.welcomeMessage”, we would need to create this property in the Consul agent site.
+
+We can create the property by going to the “KEY/VALUE” section, then entering “/config/consul-integration-demo/env/welcomeMessage” in the “Create Key” form and “Hello World” as value. Finally, click the “Create” button.
+
+let’s inject config properties from consul to our restcontroller class **DiscoveryClientController** and expose an endpoint to get that property.
+
+*DiscoveryClientController*
+
+    @Value("${env.welcomeMessage}")
+    String welcomeMessage;
+    
+    @RequestMapping("/welcomeMessage")
+    public String welcomeMessage() {
+        return welcomeMessage;
+    }
+    
+Now open browser with http://localhost:8080/welcomeMessage and you should see the “Hello World” from consul config.
+
+#### Updating the Configuration at consul
+We can update the configuration consul and no need to restart the Spring Boot application if we have added the **@RefreshScope** annotation to the **DiscoveryClientController** class where configuration used.
+
+*DiscoveryClientController*
+    @RestController
+    @RefreshScope
+    public class DiscoveryClientController {
+        ...
+        @Value("${env.welcomeMessage}")
+        String welcomeMessage;
+        ...
+    }
+    
