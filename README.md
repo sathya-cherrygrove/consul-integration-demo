@@ -184,9 +184,10 @@ let’s inject config properties from consul to our restcontroller class **Disco
 Now open browser with http://localhost:8080/welcomeMessage and you should see the “Hello World” from consul config.
 
 #### Updating the Configuration at consul
-We can update the configuration consul and no need to restart the Spring Boot application if we have added the **@RefreshScope** annotation to the **DiscoveryClientController** class where configuration used.
+We can update the configuration at consul and no need to restart the Spring Boot application if we have added the **@RefreshScope** annotation to the **DiscoveryClientController** class where configuration used.
 
 *DiscoveryClientController*
+    
     @RestController
     @RefreshScope
     public class DiscoveryClientController {
