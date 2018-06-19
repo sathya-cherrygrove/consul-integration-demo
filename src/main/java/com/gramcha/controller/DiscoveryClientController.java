@@ -12,7 +12,9 @@ import javax.naming.ServiceUnavailableException;
 
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -25,10 +27,14 @@ import org.springframework.web.client.RestTemplate;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 @RestController
+@RefreshScope
 public class DiscoveryClientController {
 	@Autowired
     private DiscoveryClient discoveryClient;
  
+	@Value("${env.welcomeMessage}")
+    String welcomeMessage;
+	
     public Optional<URI> serviceUrl() {
         return discoveryClient.getInstances("consul-integration-demo")
           .stream()
@@ -51,8 +57,14 @@ public class DiscoveryClientController {
     public String ping() {
         return "pong";
     }
+    
     @GetMapping("/app-health-check")
     public String myCustomCheck() {
         return "I am okay.";
+    }
+    
+    @RequestMapping("/welcomeMessage")
+    public String welcomeMessage() {
+        return welcomeMessage;
     }
 }

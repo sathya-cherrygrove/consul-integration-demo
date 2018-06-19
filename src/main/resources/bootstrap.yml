@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: consul-integration-demo
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        healthCheckPath: /app-health-check
+        healthCheckInterval: 20s
+      config:
+        enabled: true
