@@ -1,6 +1,8 @@
 spring:
   application:
     name: consul-integration-demo
+    host: localhost
+    port: 8081
   cloud:
     consul:
       host: localhost

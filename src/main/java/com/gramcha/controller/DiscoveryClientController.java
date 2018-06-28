@@ -7,9 +7,7 @@ package com.gramcha.controller;
 
 import java.net.URI;
 import java.util.Optional;
-
 import javax.naming.ServiceUnavailableException;
-
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.sun.jersey.core.util.MultivaluedMapImpl;
+//import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 @RestController
 @RefreshScope
@@ -32,7 +30,7 @@ public class DiscoveryClientController {
 	@Autowired
     private DiscoveryClient discoveryClient;
  
-	@Value("${env.welcomeMessage}")
+	@Value("${welcomemessage}")
     String welcomeMessage;
 	
     public Optional<URI> serviceUrl() {
